@@ -1,6 +1,8 @@
 import { useState } from "react";
 import "../index.css"
+import { useNavigate } from "react-router-dom";
 import { Achievements } from "./Achievements";
+import { Users } from "./Users";
 const requiredFields = [
     { name: "first", message: "First Name Should Not be empty" },
     { name: "last", message: "Last Name Should Not be empty" },
@@ -17,7 +19,6 @@ export const ValidationForm = () => {
     const [errors, setErrors] = useState({});
     const [achievements, setAchievements] = useState([]);
     const [achievementCount, setAchievementCount] = useState(1);
-
     const handleAdding = () => {
         setAchievements([...achievements, <Achievements key={achievementCount} id={achievementCount} />])
         setAchievementCount(achievementCount + 1);
@@ -27,7 +28,7 @@ export const ValidationForm = () => {
         return value.length > 0;
     };
 
-    const errorMessages = {};
+    let errorMessages = {};
     const requiredValidation = (formData) => {
 
         for (let i = 0; i < requiredFields.length; i++) {
@@ -42,7 +43,6 @@ export const ValidationForm = () => {
         }
 
         if (formData["number"] && (formData["number"].length < 10 || formData["number"].length > 10)) {
-            console.log("coming inside");
             errorMessages["number"] = ["Phone number must be 10 digits only"];
         }
         let getDataOfHobbies = formData.hobbies.selectedOptions;
@@ -50,13 +50,23 @@ export const ValidationForm = () => {
         if (!values.length) {
             errorMessages["hobbies"] = ["You must select atleast one hobby"]
         }
-        console.log("achievements", formData["achievements"]);
+        console.log("values", values);
         if (formData.achievements.length == 0) {
             errorMessages["achievements"] = ["Atleast select one achievement bro."]
         }
-
+        console.log(formData);
         setErrors(errorMessages);
-        console.log("error messages", errorMessages);
+
+        if(Object.keys(errorMessages).length === 0){
+            console.log("there are no errors");
+            console.log(formData.circularReference);
+            formData = {...formData, hobbies: values}
+            
+            localStorage.setItem('formData', JSON.stringify(formData))
+            
+        }
+        
+        errorMessages = {}
     };
 
     const handleSubmit = (e) => {
@@ -83,7 +93,9 @@ export const ValidationForm = () => {
                 errorMessages["achievements"] = ["If you are adding achievements enter content as well or just remove."]
             }
         })
-        requiredValidation(formData);
+         requiredValidation(formData);
+        console.log("my errors", errors);
+        
     };
 
     const handleRemoveAchievement = (id) => {

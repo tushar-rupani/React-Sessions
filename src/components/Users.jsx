@@ -9,19 +9,26 @@ import Paper from '@mui/material/Paper';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { Link, useNavigate } from 'react-router-dom';
 import { Loading } from './Loading';
-export const Users = () => {
+import { Button } from '@mui/material';
 
+
+export const Users = (props) => {
  let [data, setData] = useState([]);
- let [currentPost, setCurrentPost] = useState(null);
- const navigate = useNavigate();
     useEffect(() => {
         const loadData = async() => {
             let response = await fetch(`https://jsonplaceholder.typicode.com/users`);
             let data = await response.json();
             setData(data);
-            console.log("Finished");
+            if(localStorage.getItem("formData")){
+              console.log(localStorage.getItem("formData"));
+              setData((prevData) => [...prevData, JSON.parse(localStorage.getItem('formData'))]);
+              localStorage.removeItem("formData")
+              console.log(data);
+            }
         }
         loadData();
+
+     
     }, [])
 
   return (
@@ -51,7 +58,7 @@ export const Users = () => {
               
               <TableCell align="right">{row.phone}</TableCell>
               <TableCell align="right">
-              <Link to="/users-posts" state={{ id: row.id }}> <div><RemoveRedEyeIcon /></div> </Link>
+              <Link to="/users-posts" state={{ id: row.id }}> <span><RemoveRedEyeIcon /></span> </Link>
               </TableCell>
             </TableRow>
           ) ) : <Loading />}
